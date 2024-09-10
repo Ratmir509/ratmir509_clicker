@@ -1,0 +1,112 @@
+/* Основные стили */
+body {
+    font-family: 'Arial', sans-serif;
+    background: linear-gradient(to bottom, #83a4d4, #b6fbff);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    color: #333;
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 48px;
+    color: #444;
+    margin-bottom: 20px;
+}
+
+#ratmir509 {
+    width: 200px;
+    transition: transform 0.1s;
+}
+
+#ratmir509:active {
+    transform: scale(0.95);
+}
+
+.info {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#coins {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #ff9800;
+    font-weight: bold;
+}
+
+#energy {
+    font-size: 18px;
+    margin-bottom: 5px;
+    color: #607d8b;
+}
+
+/* Прогресс-бар для энергии */
+#energy-bar {
+    width: 200px;
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+#energy-fill {
+    width: 100%;
+    height: 100%;
+    background-color: #4caf50;
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+/* Стили кнопок улучшений */
+.upgrades {
+    margin-top: 30px;
+    text-align: center;
+}
+
+.upgrades h2 {
+    color: #444;
+    margin-bottom: 10px;
+}
+
+.button {
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color: #ff9800;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.button:hover {
+    background-color: #f57c00;
+}
+
+/* Блок для вывода сообщений */
+#message {
+    margin-top: 20px;
+    font-size: 18px;
+    color: #333;
+    text-align: center;
+}
+
+/* Стили для кнопки сброса */
+#reset {
+    margin-top: 20px;
+    background-color: #e91e63;
+}
+
+#reset:hover {
+    background-color: #d81b60;
+}
