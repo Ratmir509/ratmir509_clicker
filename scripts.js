@@ -4,8 +4,15 @@ const defaultState = {
     energy: 10,
     maxEnergy: 10,
     coinsPerClick: 1,
-    lastEnergyUpdate: Date.now() // Время последнего обновления энергии
+    lastEnergyUpdate: Date.now(),
+    upgradeClickCost: 10,
+    upgradeEnergyCost: 15,
+    upgradeClickCount: 0,
+    upgradeEnergyCount: 0,
+    maxUpgrades: 100
 };
+
+let state = loadState();
 
 // Считывание состояния из Local Storage
 function loadState() {
@@ -13,35 +20,31 @@ function loadState() {
     if (savedState) {
         const state = JSON.parse(savedState);
 
-        // Вычисляем, сколько времени прошло с последнего обновления энергии
         const now = Date.now();
-        const elapsedTime = (now - state.lastEnergyUpdate) / 1000; // Время в секундах
-        const energyToRestore = Math.floor(elapsedTime); // Количество энергии, которое должно было восстановиться
-        state.energy = Math.min(state.maxEnergy, state.energy + energyToRestore); // Восстановление энергии
-        state.lastEnergyUpdate = now; // Обновляем время последнего обновления энергии
+        const elapsedTime = (now - state.lastEnergyUpdate) / 1000;
+        const energyToRestore = Math.floor(elapsedTime / 3);
+        state.energy = Math.min(state.maxEnergy, state.energy + energyToRestore);
+        state.lastEnergyUpdate = now;
 
         return state;
     }
-    return defaultState;
+    return { ...defaultState };
 }
 
 // Сохранение состояния в Local Storage
 function saveState(state) {
-    state.lastEnergyUpdate = Date.now(); // Сохраняем текущее время как последнее обновление энергии
+    state.lastEnergyUpdate = Date.now();
     localStorage.setItem('ratmir509ClickerState', JSON.stringify(state));
 }
 
 // Сброс состояния
 function resetState() {
-    state = { ...defaultState }; // Возвращаем начальные значения
-    saveState(state); // Сохраняем новое состояние
-    updateDisplay();  // Обновляем интерфейс
+    state = { ...defaultState };
+    saveState(state);
+    updateDisplay();
     showMessage('Игра сброшена до начальных значений!');
-    localStorage.removeItem('ratmir509ClickerState'); // Очищаем Local Storage
+    localStorage.removeItem('ratmir509ClickerState');
 }
-
-let state = loadState();
-const { coins, energy, maxEnergy, coinsPerClick } = state;
 
 // Ссылки на элементы
 const ratmir509 = document.getElementById('ratmir509');
@@ -57,13 +60,30 @@ const resetButton = document.getElementById('reset');
 function updateDisplay() {
     coinsDisplay.textContent = `Монеты: ${state.coins}`;
     energyFill.style.width = `${(state.energy / state.maxEnergy) * 100}%`;
+
+    // Обновляем кнопки улучшений в зависимости от лимита
+    if (state.upgradeClickCount >= state.maxUpgrades) {
+        upgradeClickButton.textContent = 'Максимально прокачено!';
+        upgradeClickButton.disabled = true;
+    } else {
+        upgradeClickButton.textContent = `Улучшить клики (Цена: ${state.upgradeClickCost} монет)`;
+        upgradeClickButton.disabled = false;
+    }
+
+    if (state.upgradeEnergyCount >= state.maxUpgrades) {
+        upgradeEnergyButton.textContent = 'Максимально прокачено!';
+        upgradeEnergyButton.disabled = true;
+    } else {
+        upgradeEnergyButton.textContent = `Увеличить энергию (Цена: ${state.upgradeEnergyCost} монет)`;
+        upgradeEnergyButton.disabled = false;
+    }
 }
 
 // Функция для вывода сообщения на экран
 function showMessage(message) {
     messageBox.textContent = message;
     setTimeout(() => {
-        messageBox.textContent = ''; // Очистить сообщение через 3 секунды
+        messageBox.textContent = '';
     }, 3000);
 }
 
@@ -74,26 +94,32 @@ ratmir509.addEventListener('click', () => {
         state.energy -= 1;
         updateDisplay();
         saveState(state);
+    } else {
+        showMessage('Недостаточно энергии!');
     }
 });
 
-// Восстановление энергии
+// Восстановление энергии каждые 3 секунды
 setInterval(() => {
     if (state.energy < state.maxEnergy) {
         state.energy += 1;
         updateDisplay();
         saveState(state);
     }
-}, 1000);
+}, 3000);
 
 // Улучшение: Увеличить монеты за клик
 upgradeClickButton.addEventListener('click', () => {
-    if (state.coins >= 10) {
-        state.coins -= 10;
+    if (state.coins >= state.upgradeClickCost && state.upgradeClickCount < state.maxUpgrades) {
+        state.coins -= state.upgradeClickCost;
         state.coinsPerClick += 1;
+        state.upgradeClickCount += 1;
+        state.upgradeClickCost = Math.floor(state.upgradeClickCost * 1.5);
         showMessage('Теперь ты получаешь больше монет за клик!');
         updateDisplay();
         saveState(state);
+    } else if (state.upgradeClickCount >= state.maxUpgrades) {
+        showMessage('Улучшение кликов достигло максимума!');
     } else {
         showMessage('Недостаточно монет для улучшения!');
     }
@@ -101,12 +127,16 @@ upgradeClickButton.addEventListener('click', () => {
 
 // Улучшение: Увеличить максимальную энергию
 upgradeEnergyButton.addEventListener('click', () => {
-    if (state.coins >= 15) {
-        state.coins -= 15;
+    if (state.coins >= state.upgradeEnergyCost && state.upgradeEnergyCount < state.maxUpgrades) {
+        state.coins -= state.upgradeEnergyCost;
         state.maxEnergy += 5;
+        state.upgradeEnergyCount += 1;
+        state.upgradeEnergyCost = Math.floor(state.upgradeEnergyCost * 1.5);
         showMessage('Максимальная энергия увеличена!');
         updateDisplay();
         saveState(state);
+    } else if (state.upgradeEnergyCount >= state.maxUpgrades) {
+        showMessage('Увеличение энергии достигло максимума!');
     } else {
         showMessage('Недостаточно монет для улучшения!');
     }
